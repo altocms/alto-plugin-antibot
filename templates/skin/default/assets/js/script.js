@@ -57,6 +57,7 @@ $(function () {
             var clone = login.clone();
             clone.prop('id', clone.prop('id') + '-' + i)
                 .prop('name', clone.prop('name') + '-' + i)
+                .val('')
                 .addClass(data.style + data.suf)
                 .addClass(data.style + data.suf + '-' + i)
                 .insertAfter(login);
