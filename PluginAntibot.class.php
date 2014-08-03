@@ -14,10 +14,19 @@
 class PluginAntibot extends Plugin {
 
     // Объявление делегирований (нужны для того, чтобы назначить свои экшны и шаблоны)
-    public $aDelegates = array();
+    public $aDelegates = array(
+        'module' => array(
+            'ModuleAntibot',
+        ),
+    );
 
     // Объявление переопределений (модули, мапперы и сущности)
-    protected $aInherits = array();
+    protected $aInherits = array(
+        'action' => array(
+            'ActionRegistration',
+            'ActionLogin',
+        ),
+    );
 
     // Активация плагина
     public function Activate() {
@@ -32,8 +41,8 @@ class PluginAntibot extends Plugin {
     // Инициализация плагина
     public function Init() {
 
-        //$this->Viewer_AppendScript(Plugin::GetTemplateUrl(__CLASS__) . 'assets/js/script.js');
     }
+
 }
 
 // EOF

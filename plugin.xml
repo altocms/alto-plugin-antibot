@@ -7,7 +7,7 @@
         <lang name="default">Vadim Shemarov (aka aVadim)</lang>
     </author>
     <homepage>http://altocms.com</homepage>
-    <version>1.0.0</version>
+    <version>1.0.2</version>
     <requires>
         <alto>
             <version>1.0</version>

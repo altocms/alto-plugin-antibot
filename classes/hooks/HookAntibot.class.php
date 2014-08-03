@@ -19,6 +19,10 @@ class PluginAntibot_HookAntibot extends Hook {
     public function RegisterHook() {
 
         if (Config::Get('plugin.antibot.enable')) {
+            $this->AddHook('template_layout_head_begin', 'TplHtmlHeadBegin');
+            $this->AddHook('template_layout_head_end', 'TplHtmlHeadEnd');
+
+            // LS-compatibility
             $this->AddHook('template_html_head_begin', 'TplHtmlHeadBegin');
             $this->AddHook('template_html_head_end', 'TplHtmlHeadEnd');
 

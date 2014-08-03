@@ -73,6 +73,8 @@ $(function () {
         };
     }
 
+    $('[required]:hidden').removeAttr('required');
+
 });
 
 // EOF

@@ -17,6 +17,56 @@ class PluginAntibot_ModuleAntibot extends Module {
     }
 
     /**
+     * Returns log filename for requested mode ('auth.fail', 'auth.success', 'reg.fail', 'reg.success')
+     *
+     * @param string $sMode
+     *
+     * @return string|null
+     */
+    protected function _logFilename($sMode) {
+
+        $sFile = null;
+        if (Config::Get('plugin.antibot.logs.enable') && Config::Get('plugin.antibot.logs.' . $sMode . '.enable')) {
+            $sFile = Config::Get('plugin.antibot.logs.' . $sMode . '.file');
+            if (!$sFile) {
+                $sFile = 'antibot.' . str_replace('.', '_', $sMode) . '.log';
+            }
+        }
+        return $sFile;
+    }
+
+    /**
+     * Logs message
+     *
+     * @param string $sMode
+     * @param string $sMessage
+     */
+    public function LogOutput($sMode, $sMessage) {
+
+        $sFile = $this->_logFilename($sMode);
+        if ($sFile) {
+            $sMessage = 'ANTIBOT: ' . $sMessage ;
+
+            $aKeys = array('_GET', '_POST', '_COOKIE', '_SERVER');
+            $aData = array();
+            foreach($GLOBALS as $sKey => $aVal) {
+                if (in_array($sKey, $aKeys)) {
+                    $aData[$sKey] = $aVal;
+                }
+            }
+            $aSession = $this->Session_Get();
+            foreach($aSession as $sKey => $xVal) {
+                $aData['_SESSION'][$sKey] = $xVal;
+            }
+
+            if ($aData) {
+                $sMessage .= "\n" . print_r($aData, true);
+            }
+            $this->Logger_Dump($sFile, $sMessage, 'NOTICE');
+        }
+    }
+
+    /**
      * Проверка на наличие ботов
      *
      * @return bool
@@ -27,18 +77,22 @@ class PluginAntibot_ModuleAntibot extends Module {
             return true;
         }
 
-        $bResult = true;
+        $bOk = true;
         if (Config::Get('plugin.antibot.js')) {
             if (($s = $this->Session_Get('plugin.antibot.fake_login')) && is_array($aInputSets = unserialize($s))) {
                 $sLoginField = 'login-' . $aInputSets['num'];
             } else {
-                $bResult = false;
+                $bOk = false;
             }
         }
 
-        $bResult = ($bResult && $this->_checkFakeFields($sLoginField) && $this->_checkLogin($sLoginField));
+        $bOk = ($bOk && $this->_checkFakeFields($sLoginField) && $this->_checkLogin($sLoginField));
 
-        return $bResult;
+        if (!$bOk){
+            $this->LogOutput('auth.fail', 'Bot detected');
+        }
+
+        return $bOk;
     }
 
     protected function _checkFakeFields($sLoginField) {
