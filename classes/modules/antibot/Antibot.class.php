@@ -89,7 +89,9 @@ class PluginAntibot_ModuleAntibot extends Module {
         $bOk = ($bOk && $this->_checkFakeFields($sLoginField) && $this->_checkLogin($sLoginField));
 
         if (!$bOk){
-            $this->LogOutput('auth.fail', 'Bot detected');
+            $this->LogOutput('pass.fail', strtoupper(Router::GetAction()) . ' - Bot detected');
+        } else {
+            $this->LogOutput('pass.success', strtoupper(Router::GetAction()) . ' - Bot not detected');
         }
 
         return $bOk;

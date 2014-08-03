@@ -49,28 +49,40 @@ $config['css_classes'] = array(
 // Разрешены дополнительные логи
 $config['logs']['enable'] = true;
 
-// Логгирование успешной регистрации
-$config['logs']['reg']['success'] = array(
+// Логгирование успешного прохождения бот-проверки
+$config['logs']['pass']['success'] = array(
+    'enable' => false,
+    'file'   => 'antibot.pass_success.log',
+);
+
+// Логгирование неуспешного прохождения бот-проверки
+$config['logs']['pass']['fail'] = array(
     'enable' => true,
-    'file'   => 'antibot.reg_success.log',
+    'file'   => 'antibot.pass_fail.log',
+);
+
+// Логгирование успешной регистрации
+$config['logs']['registration']['success'] = array(
+    'enable' => false,
+    'file'   => 'antibot.registration_success.log',
 );
 
 // Логгирование неуспешной регистрации
-$config['logs']['reg']['fail'] = array(
-    'enable' => true,
-    'file'   => 'antibot.reg_fail.log',
+$config['logs']['registration']['fail'] = array(
+    'enable' => false,
+    'file'   => 'antibot.registration_fail.log',
 );
 
 // Логгирование успешной авторизации
-$config['logs']['auth']['success'] = array(
-    'enable' => true,
-    'file'   => 'antibot.auth_success.log',
+$config['logs']['login']['success'] = array(
+    'enable' => false,
+    'file'   => 'antibot.login_success.log',
 );
 
 // Логгирование неуспешной авторизации
-$config['logs']['auth']['fail'] = array(
-    'enable' => true,
-    'file'   => 'antibot.auth_fail.log',
+$config['logs']['login']['fail'] = array(
+    'enable' => false,
+    'file'   => 'antibot.login_fail.log',
 );
 
 return $config;
