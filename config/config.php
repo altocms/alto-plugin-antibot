@@ -17,6 +17,38 @@
 $config['enable'] = true;
 
 /*
+ * What acrion/event will be never checked
+ */
+$config['off'] = array(
+    'login/exit',
+);
+
+// Methods for antibot checking
+$config['methods'] = array(
+    // Static fake fields in forms
+    'fake' => array(
+        //'actions' => array('registration', 'login'),
+        //'post'    => array('submit_register', 'submit_login'),
+    ),
+    // Dynamic additional login fields created by javascript
+    'js'   => array(
+        //'actions' => array('registration', 'login'),
+        //'post'    => array('submit_register', 'submit_login'),
+    ),
+    // Check using www.stopforumspam.com API
+    'sfs'  => array(
+        'actions' => array('registration', 'login'),
+        'post'    => array('submit_register', 'submit_login'),
+    ),
+);
+
+$config['block_ip'] = array(
+    'enable' => true,
+    'period' => 'P3D',
+    'file' => 'spam_ip.dat',
+);
+
+/*
  * Fake fields for registration (each field will have the suffix, defined in 'fake_suffix' below)
  */
 $config['fake_names'] = array(
@@ -29,11 +61,6 @@ $config['fake_names'] = array(
  * Разрешены только буквы, цифры, знак подчеркивания и минус
  */
 $config['fake_suffix'] = '_custom';
-
-/*
- * Использовать javascript
- */
-$config['js'] = true;
 
 $config['logs']['file'] = 'antibot.log';
 $config['logs']['enable'] = true;
