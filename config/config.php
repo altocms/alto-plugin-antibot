@@ -46,6 +46,7 @@ $config['block_ip'] = array(
     'enable' => true,
     'period' => 'P3D',
     'file' => 'spam_ip.dat',
+    'log' => false,
 );
 
 /*

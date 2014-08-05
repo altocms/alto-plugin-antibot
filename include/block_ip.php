@@ -106,11 +106,24 @@ function pluginAntibotAddIp($aList, $sIp = null) {
  */
 function pluginAntibotCheck() {
 
+    if (Config::Get('plugin.antibot.block_ip.log')) {
+        $sLogFile = Config::Get('sys.logs.dir') . 'block_ip.log';
+    } else {
+        $sLogFile = '';
+    }
     $aList = pluginAntibotGetList();
-    $iKey = pluginAntibotSeekIp($aList);
+    $sIp = F::GetUserIp();
+    $iKey = pluginAntibotSeekIp($aList, $sIp);
     if ($iKey !== false) {
+        if ($sLogFile) {
+            file_put_contents($sLogFile, date('Y-m-d H:i:s') . ' - ' . $sIp . ' - bad' . "\n", FILE_APPEND);
+        }
         F::HttpHeader(404);
         exit;
+    } else {
+        if ($sLogFile) {
+            file_put_contents($sLogFile, date('Y-m-d H:i:s') . ' - ' . $sIp . ' - ok' . "\n", FILE_APPEND);
+        }
     }
 }
 

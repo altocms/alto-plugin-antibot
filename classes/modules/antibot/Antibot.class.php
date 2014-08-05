@@ -262,8 +262,6 @@ class PluginAntibot_ModuleAntibot extends Module {
         $bResult = true;
 
         $sIp = F::GetUserIp();
-        $sIp = '173.208.201.228';
-        $sIp = '192.95.48.221';
         $sUrl = 'http://api.stopforumspam.org/api?ip=' . $sIp . '&f=json';
         $sResult = file_get_contents($sUrl);
         if ($sResult) {
