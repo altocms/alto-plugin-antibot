@@ -41,6 +41,10 @@ class PluginAntibot extends Plugin {
     // Инициализация плагина
     public function Init() {
 
+        if (Config::Get('plugin.antibot.enable') && (Config::Get('plugin.antibot.methods.js') || Config::Get('plugin.antibot.methods.fake'))) {
+            $sFile = Plugin::GetTemplateDir(__CLASS__) . 'assets/css/style.css';
+            $this->Viewer_AppendStyle($sFile);
+        }
     }
 
 }
