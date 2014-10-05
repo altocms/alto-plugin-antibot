@@ -115,7 +115,8 @@ class PluginAntibot_HookAntibot extends Hook {
                     for ($i = 0; $i <= $aInputSets['cnt']; $i++) {
                         $aParams = $aAttributes;
                         if ($i != $aInputSets['num']) {
-                            $aParams[] = 'display:none;width:1px;height:1px;opacity:0;';
+                            // style attributes for fake fields
+                            $aParams[] = 'display:none!important;width:1px;height:1px;opacity:0;';
                         }
                         shuffle($aParams);
                         $sStyles .= 'input.' . $aInputSets['style']
