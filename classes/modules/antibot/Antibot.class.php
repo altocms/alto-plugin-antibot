@@ -269,15 +269,17 @@ class PluginAntibot_ModuleAntibot extends Module {
 
         $bResult = true;
 
-        $sIp = F::GetUserIp();
-        $sUrl = 'http://api.stopforumspam.org/api?ip=' . $sIp . '&f=json';
-        $sResult = file_get_contents($sUrl);
-        if ($sResult) {
-            $aResult = json_decode($sResult, true);
-            if (isset($aResult['success']) && $aResult['success'] == 1) {
-                if (isset($aResult['ip']['appears']) && $aResult['ip']['appears'] > 0) {
-                    $bResult = false;
-                    $this->sReason = self::BOT_SYMPTOM_09 . ', ip:' . $sIp;
+        $sUserIp = F::GetUserIp();
+        if (!pluginAntibotWhiteList($sUserIp)) {
+            $sUrl = 'http://api.stopforumspam.org/api?ip=' . $sUserIp . '&f=json';
+            $sResult = file_get_contents($sUrl);
+            if ($sResult) {
+                $aResult = json_decode($sResult, true);
+                if (isset($aResult['success']) && $aResult['success'] == 1) {
+                    if (isset($aResult['ip']['appears']) && $aResult['ip']['appears'] > 0) {
+                        $bResult = false;
+                        $this->sReason = self::BOT_SYMPTOM_09 . ', ip:' . $sUserIp;
+                    }
                 }
             }
         }

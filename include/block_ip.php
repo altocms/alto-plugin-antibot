@@ -185,25 +185,27 @@ function pluginAntibotIpInList($sIp, $aList) {
  */
 function pluginAntibotWhiteList($sUserIp = null) {
 
+    $bResult = false;
     if (Config::Get('plugin.antibot.white_ip.enable')) {
         if ($aList = Config::Get('plugin.antibot.white_ip.list')) {
             if (!$sUserIp) {
                 $sUserIp = F::GetUserIp();
             }
-            return pluginAntibotIpInList($sUserIp, $aList);
+            $bResult = pluginAntibotIpInList($sUserIp, $aList);
         }
     }
-    return false;
+    if ($bResult) {
+        //$aList = pluginAntibotGetList('white_ip');
+        //$aList = pluginAntibotAddIp($aList, $sUserIp);
+        //pluginAntibotPutList($aList, 'white_ip');
+        pluginAntibotLog($sUserIp, 'white');
+    }
+    return $bResult;
 }
 
 if (Config::Get('plugin.antibot.block_ip.enable')) {
     $sUserIp = F::GetUserIp();
-    if (pluginAntibotWhiteList($sUserIp)) {
-        $aList = pluginAntibotGetList('white_ip');
-        $aList = pluginAntibotAddIp($aList, $sUserIp);
-        pluginAntibotPutList($aList, 'white_ip');
-        pluginAntibotLog($sUserIp, 'white');
-    } else {
+    if (!pluginAntibotWhiteList($sUserIp)) {
         pluginAntibotCheck($sUserIp);
     }
 }
