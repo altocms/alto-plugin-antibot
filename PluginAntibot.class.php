@@ -35,6 +35,7 @@ class PluginAntibot extends Plugin {
 
     // Деактивация плагина
     public function Deactivate() {
+        return true;
     }
 
 
