@@ -47,6 +47,25 @@ $config['block_ip'] = array(
     'period' => 'P3D',
     'file' => 'spam_ip.dat',
     'log' => false,
+    // you can place black IPs or IP's rang in this list
+    'list' => array(
+        // '195.112.117.26',
+        // '195.112.117.25-195.112.117.30',
+    ),
+);
+
+/*
+ * List of white ip - they will be pass without checking
+ * It will be single address or rang
+ */
+$config['white_ip'] = array(
+    'enable' => true,
+    'list' => array(
+        // '195.112.117.26',
+        // '195.112.117.25-195.112.117.30',
+    ),
+    'file' => 'white_ip.dat',
+    'log' => false,
 );
 
 /*

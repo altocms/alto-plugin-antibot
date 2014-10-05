@@ -13,6 +13,14 @@
 
 class PluginAntibot_ModuleAntibot extends Module {
 
+    const BOT_SYMPTOM_01 = '#1 (js: data are missed in session)';
+    const BOT_SYMPTOM_02 = '#2 (fake: fake fields filled)';
+    const BOT_SYMPTOM_03 = '#3 (fake: fake data are missed in session)';
+    const BOT_SYMPTOM_04 = '#4 (js: real login field is missed in POST)';
+    const BOT_SYMPTOM_05 = '#5 (js: field "login" is passed in POST)';
+    const BOT_SYMPTOM_06 = '#6 (js: js fields are missed in session)';
+    const BOT_SYMPTOM_09 = '#9 (sfs: data appears in stopforumspam.org)';
+
     protected $aMethods = array();
     protected $sReason;
 
@@ -95,7 +103,7 @@ class PluginAntibot_ModuleAntibot extends Module {
      *
      * @return string|null
      */
-    protected function _logFilename($sMode) {
+    protected function _getLogFilename($sMode) {
 
         $sFile = null;
         if (Config::Get('plugin.antibot.logs.enable') && Config::Get('plugin.antibot.logs.' . $sMode . '.enable')) {
@@ -115,7 +123,7 @@ class PluginAntibot_ModuleAntibot extends Module {
      */
     public function LogOutput($sMode, $sMessage) {
 
-        $sFile = $this->_logFilename($sMode);
+        $sFile = $this->_getLogFilename($sMode);
         if ($sFile) {
             $sMessage = 'ANTIBOT: ' . $sMessage;
 
@@ -157,7 +165,7 @@ class PluginAntibot_ModuleAntibot extends Module {
                 $sLoginField = 'login-' . $aInputSets['num'];
             } else {
                 $bOk = false;
-                $this->sReason = '#1';
+                $this->sReason = self::BOT_SYMPTOM_01;
             }
         }
 
@@ -200,13 +208,13 @@ class PluginAntibot_ModuleAntibot extends Module {
                     if (($sKey != $sLoginField) && substr($sKey, -$nLen) == $sSuffix && $sVal) {
                         // если хоть что-то заполнено - это бот
                         $bResult = false;
-                        $this->sReason = '#2';
+                        $this->sReason = self::BOT_SYMPTOM_02;
                         break;
                     }
                 }
             } else {
                 $bResult = false;
-                $this->sReason = '#3';
+                $this->sReason = self::BOT_SYMPTOM_02;
             }
         }
         return $bResult;
@@ -236,10 +244,10 @@ class PluginAntibot_ModuleAntibot extends Module {
                 } else {
                     if (!isset($_POST[$sLoginField]) || !isset($_POST['login'])) {
                         $bResult = false;
-                        $this->sReason = '#4';
+                        $this->sReason = self::BOT_SYMPTOM_04;
                     } elseif ($_POST['login']) {
                         $bResult = false;
-                        $this->sReason = '#5';
+                        $this->sReason = self::BOT_SYMPTOM_05;
                     } else {
                         if ($_POST[$sLoginField] && !$_POST['login']) {
                             $_POST['login'] = $_POST[$sLoginField];
@@ -251,7 +259,7 @@ class PluginAntibot_ModuleAntibot extends Module {
                 }
             } else {
                 $bResult = false;
-                $this->sReason = '#6';
+                $this->sReason = self::BOT_SYMPTOM_06;
             }
         }
         return $bResult;
@@ -269,7 +277,7 @@ class PluginAntibot_ModuleAntibot extends Module {
             if (isset($aResult['success']) && $aResult['success'] == 1) {
                 if (isset($aResult['ip']['appears']) && $aResult['ip']['appears'] > 0) {
                     $bResult = false;
-                    $this->sReason = '#9, ip:' . $sIp;
+                    $this->sReason = self::BOT_SYMPTOM_09 . ', ip:' . $sIp;
                 }
             }
         }

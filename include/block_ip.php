@@ -12,13 +12,15 @@
  */
 
 /**
- * Read list of blocked IPs
+ * Read list of IPs
+ *
+ * @param $sListName
  *
  * @return array
  */
-function pluginAntibotGetList() {
+function pluginAntibotGetList($sListName = 'block_ip') {
 
-    $sFile = Config::Get('sys.cache.dir') . 'data/' . Config::Get('plugin.antibot.block_ip.file');
+    $sFile = Config::Get('sys.cache.dir') . 'data/' . Config::Get('plugin.antibot.' . $sListName . '.file');
     if (is_file($sFile)) {
         $aList = file($sFile);
         if ($aList) {
@@ -39,10 +41,12 @@ function pluginAntibotGetList() {
  * Save list of blocked IPs
  *
  * @param array $aList
+ * @param $sListName
+ *
  */
-function pluginAntibotPutList($aList) {
+function pluginAntibotPutList($aList, $sListName = 'block_ip') {
 
-    $sFile = Config::Get('sys.cache.dir') . 'data/' . Config::Get('plugin.antibot.block_ip.file');
+    $sFile = Config::Get('sys.cache.dir') . 'data/' . Config::Get('plugin.antibot.' . $sListName . '.file');
     file_put_contents($sFile, implode("\n", $aList));
 }
 
@@ -77,17 +81,22 @@ function pluginAntibotSeekIp($aList, $sIp = null) {
  *
  * @param array  $aList
  * @param string $sIp
+ * @param bool   $bPeriod
  *
  * @return array
  */
-function pluginAntibotAddIp($aList, $sIp = null) {
+function pluginAntibotAddIp($aList, $sIp = null, $bPeriod = true) {
 
     if (!$sIp) {
         $sIp = F::GetUserIp();
     }
-    $sPeriod = Config::Get('plugin.antibot.block_ip.period');
-    if ($sPeriod && $sPeriod != '*') {
-        $sDate = F::DateTimeAdd($sPeriod);
+    if ($bPeriod) {
+        $sPeriod = Config::Get('plugin.antibot.block_ip.period');
+        if ($sPeriod && $sPeriod != '*') {
+            $sDate = F::DateTimeAdd($sPeriod);
+        } else {
+            $sDate = '*';
+        }
     } else {
         $sDate = '*';
     }
@@ -102,33 +111,101 @@ function pluginAntibotAddIp($aList, $sIp = null) {
 }
 
 /**
- * Check user's IP
+ * Logs result
+ *
+ * @param string $sUserIp
+ * @param string $sStatus
  */
-function pluginAntibotCheck() {
+function pluginAntibotLog($sUserIp, $sStatus) {
 
     if (Config::Get('plugin.antibot.block_ip.log')) {
         $sLogFile = Config::Get('sys.logs.dir') . 'block_ip.log';
-    } else {
-        $sLogFile = '';
-    }
-    $aList = pluginAntibotGetList();
-    $sIp = F::GetUserIp();
-    $iKey = pluginAntibotSeekIp($aList, $sIp);
-    if ($iKey !== false) {
-        if ($sLogFile) {
-            file_put_contents($sLogFile, date('Y-m-d H:i:s') . ' - ' . $sIp . ' - bad' . "\n", FILE_APPEND);
-        }
-        F::HttpHeader(404);
-        exit;
-    } else {
-        if ($sLogFile) {
-            file_put_contents($sLogFile, date('Y-m-d H:i:s') . ' - ' . $sIp . ' - ok' . "\n", FILE_APPEND);
-        }
+        file_put_contents($sLogFile, date('Y-m-d H:i:s') . ' - ' . $sUserIp . ' - ' . $sStatus . "\n", FILE_APPEND);
     }
 }
 
+/**
+ * Check user's IP
+ *
+ * @param string $sUserIp
+ */
+function pluginAntibotCheck($sUserIp = null) {
+
+    if (!$sUserIp) {
+        $sUserIp = F::GetUserIp();
+    }
+    $sStatus = 'ok';
+    $aList = pluginAntibotGetList();
+    if ($aList) {
+        $iKey = pluginAntibotSeekIp($aList, $sUserIp);
+        if ($iKey !== false) {
+            $sStatus = 'bad';
+        }
+    }
+    if ($sStatus == 'ok') {
+        if ($aList = Config::Get('plugin.antibot.block_ip.list')) {
+            if (pluginAntibotIpInList($sUserIp, $aList)) {
+                $sStatus = 'black';
+            }
+        }
+    }
+    if ($sStatus != 'ok') {
+        pluginAntibotLog($sUserIp, $sStatus);
+        F::HttpHeader(404);
+        exit;
+    }
+    pluginAntibotLog($sUserIp, 'ok');
+}
+
+function pluginAntibotIpInList($sIp, $aList) {
+
+    $sLongIp = sprintf('%u', ip2long($sIp));
+    foreach ($aList as $sNet) {
+        if (strpos($sNet, '-')) {
+            // rang
+            list($sIp1, $sIp2) = explode('-', $sNet);
+            if ($sLongIp >= sprintf('%u', ip2long($sIp1)) && $sLongIp <= sprintf('%u', ip2long($sIp2))) {
+                return true;
+            }
+        } else {
+            // single
+            if ($sLongIp == sprintf('%u', ip2long($sNet))) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+/**
+ * Check user's IP in white list
+ *
+ * @param string $sUserIp
+ *
+ * @return bool
+ */
+function pluginAntibotWhiteList($sUserIp = null) {
+
+    if (Config::Get('plugin.antibot.white_ip.enable')) {
+        if ($aList = Config::Get('plugin.antibot.white_ip.list')) {
+            if (!$sUserIp) {
+                $sUserIp = F::GetUserIp();
+            }
+            return pluginAntibotIpInList($sUserIp, $aList);
+        }
+    }
+    return false;
+}
+
 if (Config::Get('plugin.antibot.block_ip.enable')) {
-    pluginAntibotCheck();
+    $sUserIp = F::GetUserIp();
+    if (pluginAntibotWhiteList($sUserIp)) {
+        $aList = pluginAntibotGetList('white_ip');
+        $aList = pluginAntibotAddIp($aList, $sUserIp);
+        pluginAntibotPutList($aList, 'white_ip');
+        pluginAntibotLog($sUserIp, 'white');
+    } else {
+        pluginAntibotCheck($sUserIp);
+    }
 }
 
 // EOF
