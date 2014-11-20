@@ -34,7 +34,7 @@ class PluginAntibot_ActionLogin extends PluginAntibot_Inherits_ActionLogin {
 
         if ($aArgs) {
             if (is_array($aArgs)) {
-                $this->sError = array_shift($aArgs);
+                $this->sError = reset($aArgs);
             } else {
                 $this->sError = $aArgs;
             }

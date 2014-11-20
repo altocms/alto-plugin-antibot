@@ -179,7 +179,7 @@ class PluginAntibot_HookAntibot extends Hook {
 
         if ($this->_isEnable() && $this->PluginAntibot_Antibot_NeedCheck()) {
             if (!$this->PluginAntibot_Antibot_BotFree()) {
-                F::HttpHeader(404);
+                pluginAntibotExit(F::GetUserIp(), $this->PluginAntibot_Antibot_GetReason());
                 exit;
             }
         }

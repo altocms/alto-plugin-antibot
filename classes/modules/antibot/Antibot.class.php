@@ -190,6 +190,11 @@ class PluginAntibot_ModuleAntibot extends Module {
         return $bOk;
     }
 
+    public function GetReason() {
+
+        return $this->sReason;
+    }
+
     /**
      * @param string $sLoginField
      *
@@ -272,11 +277,23 @@ class PluginAntibot_ModuleAntibot extends Module {
         $sUserIp = F::GetUserIp();
         if (!pluginAntibotWhiteList($sUserIp)) {
             $sUrl = 'http://api.stopforumspam.org/api?ip=' . $sUserIp . '&f=json';
-            $sResult = file_get_contents($sUrl);
+            if (Config::Get('plugin.antibot.use_curl')) {
+                if (!class_exists('Curl', false)) {
+                    F::IncludeLib('Curl/Curl.class.php');
+                }
+                $oCurl = new Curl($sUrl);
+                $sResult = $oCurl->requestGet();
+            } else {
+                $sResult = file_get_contents($sUrl);
+            }
             if ($sResult) {
                 $aResult = json_decode($sResult, true);
                 if (isset($aResult['success']) && $aResult['success'] == 1) {
-                    if (isset($aResult['ip']['appears']) && $aResult['ip']['appears'] > 0) {
+                    $iAppears = intval(Config::Get('plugin.antibot.methods.sfs.appears'));
+                    if ($iAppears < 1) {
+                        $iAppears = 1;
+                    }
+                    if (isset($aResult['ip']['appears']) && $aResult['ip']['appears'] >= $iAppears) {
                         $bResult = false;
                         $this->sReason = self::BOT_SYMPTOM_09 . ', ip:' . $sUserIp;
                     }

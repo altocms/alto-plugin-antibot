@@ -39,6 +39,7 @@ $config['methods'] = array(
     'sfs'  => array(
         'actions' => array('registration', 'login'),
         'post'    => array('submit_register', 'submit_login'),
+        'appears' => 1,
     ),
 );
 
@@ -52,6 +53,11 @@ $config['block_ip'] = array(
         // '195.112.117.26',
         // '195.112.117.25-195.112.117.30',
     ),
+    'output' => array(
+        'enable' => true,
+        'html' => '<body style="margin: 0; background: #000; color: #fff; text-align: center;"><h1>404</h1>%%ip%%</body>',
+    ),
+    'skip_auth_users' => true,
 );
 
 /*
@@ -131,6 +137,8 @@ $config['logs']['login']['fail'] = array(
     'enable' => false,
     'file'   => 'antibot.login_fail.log',
 );
+
+$config['use_curl'] = 1; //false;
 
 return $config;
 

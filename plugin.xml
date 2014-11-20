@@ -8,7 +8,7 @@
         <lang name="default">Vadim Shemarov (aka aVadim)</lang>
     </author>
     <homepage>http://altocms.com</homepage>
-    <version>1.2.4</version>
+    <version>1.2.6</version>
     <dirname>antibot</dirname>
     <requires>
         <alto>

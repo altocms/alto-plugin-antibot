@@ -150,11 +150,25 @@ function pluginAntibotCheck($sUserIp = null) {
         }
     }
     if ($sStatus != 'ok') {
-        pluginAntibotLog($sUserIp, $sStatus);
-        F::HttpHeader(404);
+        pluginAntibotExit($sUserIp, $sStatus);
         exit;
     }
     pluginAntibotLog($sUserIp, 'ok');
+}
+
+function pluginAntibotExit($sUserIp, $sStatus) {
+
+    pluginAntibotLog($sUserIp, $sStatus);
+    F::HttpResponseCode(404);
+    if ($aList = Config::Get('plugin.antibot.block_ip.output.enable')) {
+        if ($sHtml = Config::Get('plugin.antibot.block_ip.output.html')) {
+            $sHtml = str_replace('%%ip%%', $sUserIp, $sHtml);
+            echo $sHtml;
+        } else {
+            echo '404';
+        }
+    }
+    exit;
 }
 
 function pluginAntibotIpInList($sIp, $aList) {
@@ -195,18 +209,23 @@ function pluginAntibotWhiteList($sUserIp = null) {
         }
     }
     if ($bResult) {
-        //$aList = pluginAntibotGetList('white_ip');
-        //$aList = pluginAntibotAddIp($aList, $sUserIp);
-        //pluginAntibotPutList($aList, 'white_ip');
         pluginAntibotLog($sUserIp, 'white');
     }
     return $bResult;
 }
 
 if (Config::Get('plugin.antibot.block_ip.enable')) {
-    $sUserIp = F::GetUserIp();
-    if (!pluginAntibotWhiteList($sUserIp)) {
-        pluginAntibotCheck($sUserIp);
+    $bSkip = false;
+    if (Config::Get('plugin.antibot.block_ip.skip_auth_users') && Config::Get('security.user_session_key')) {
+        if (isset($_COOKIE[Config::Get('security.user_session_key')])) {
+            $bSkip = true;
+        }
+    }
+    if (!$bSkip) {
+        $sUserIp = F::GetUserIp();
+        if (!pluginAntibotWhiteList($sUserIp)) {
+            pluginAntibotCheck($sUserIp);
+        }
     }
 }
 
