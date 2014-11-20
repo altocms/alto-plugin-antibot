@@ -295,7 +295,7 @@ class PluginAntibot_ModuleAntibot extends Module {
                     }
                     if (isset($aResult['ip']['appears']) && $aResult['ip']['appears'] >= $iAppears) {
                         $bResult = false;
-                        $this->sReason = self::BOT_SYMPTOM_09 . ', ip:' . $sUserIp;
+                        $this->sReason = self::BOT_SYMPTOM_09 . ', appears: ' . $aResult['ip']['appears'] . ', ip:' . $sUserIp;
                     }
                 }
             }
