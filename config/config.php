@@ -138,7 +138,7 @@ $config['logs']['login']['fail'] = array(
     'file'   => 'antibot.login_fail.log',
 );
 
-$config['use_curl'] = 1; //false;
+$config['use_curl'] = true; //false;
 
 return $config;
 

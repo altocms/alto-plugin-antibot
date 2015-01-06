@@ -22,7 +22,7 @@ function pluginAntibotGetList($sListName = 'block_ip') {
 
     $sFile = Config::Get('sys.cache.dir') . 'data/' . Config::Get('plugin.antibot.' . $sListName . '.file');
     if (is_file($sFile)) {
-        $aList = file($sFile);
+        $aList = @file($sFile);
         if ($aList) {
             $aList = array_map('trim', $aList);
             $sDate = date('Y-m-d H:i:s');
@@ -47,7 +47,11 @@ function pluginAntibotGetList($sListName = 'block_ip') {
 function pluginAntibotPutList($aList, $sListName = 'block_ip') {
 
     $sFile = Config::Get('sys.cache.dir') . 'data/' . Config::Get('plugin.antibot.' . $sListName . '.file');
-    file_put_contents($sFile, implode("\n", $aList));
+    $sDir = dirname($sFile);
+    if (!is_dir($sDir)) {
+        @mkdir($sDir, 0755, true);
+    }
+    @file_put_contents($sFile, implode("\n", $aList));
 }
 
 /**
@@ -120,7 +124,11 @@ function pluginAntibotLog($sUserIp, $sStatus) {
 
     if (Config::Get('plugin.antibot.block_ip.log')) {
         $sLogFile = Config::Get('sys.logs.dir') . 'block_ip.log';
-        file_put_contents($sLogFile, date('Y-m-d H:i:s') . ' - ' . $sUserIp . ' - ' . $sStatus . "\n", FILE_APPEND);
+        $sDir = dirname($sLogFile);
+        if (!is_dir($sDir)) {
+            @mkdir($sDir, 0755, true);
+        }
+        @file_put_contents($sLogFile, date('Y-m-d H:i:s') . ' - ' . $sUserIp . ' - ' . $sStatus . "\n", FILE_APPEND);
     }
 }
 
